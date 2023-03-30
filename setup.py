@@ -1,17 +1,16 @@
-from setuptools import find_namespace_packages,setup
+from setuptools import find_namespace_packages,setup,find_packages
 from typing import List
 
 HYPEN_E_DOT = '-e .'
 
 def get_requirements(file_path:str)->List[str]:
-
     '''
     this function will return the list of requirements
     '''
     requirements = []
 
     with open(file_path) as file_obj:
-        requirements=file_obj.realines()
+        requirements=file_obj.readlines()
         requirements=[req.replace("\n","") for req in requirements]
 
         if HYPEN_E_DOT in requirements:
@@ -20,11 +19,11 @@ def get_requirements(file_path:str)->List[str]:
     return requirements
 
 setup(
-    name="ML Project",
-    version='0.0.1'
-    author='Akansha'
-    author_email='akansharathi121@gmai.com'
-    packages= find_packages(),
-    install_requires = get_requirement('requirement.txt')
-    )
+name="MLProject",
+version='0.0.2',
+author='Akansha',
+author_email='akansharathi121@gmail.com',
+packages=find_packages(),
+install_requires=get_requirements('requirement.txt')
+)
     
