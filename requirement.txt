@@ -2,10 +2,12 @@ pandas
 numpy
 seaborn
 matplotlib
-seaborn
 warning
 scikit-learn
 catboost
 xgboost
 dill
+joblib
+pip
+gunicorn
 #-e .

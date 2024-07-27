@@ -1,16 +1,19 @@
 import sys
 from dataclasses import dataclass
 
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder,StandardScaler
-from src.utlis import save_object
+from utlis import save_object
 
-from src.exception import CustomException
-from src.logger import logging
+from exception import CustomException
+from logger import logging
 import os
 
 @dataclass
@@ -45,7 +48,7 @@ class DataTransformation:
             cat_pipeline = Pipeline(
                 steps=[
                 ("imputer",SimpleImputer(strategy="most_frequent")),
-                ("one_hot_encoder",OneHotEncoder()),
+                ("one_hot_encoder",OneHotEncoder(handle_unknown='ignore')),
                 ("Scaler",StandardScaler(with_mean=False))
                 ]
             )
@@ -78,14 +81,12 @@ class DataTransformation:
 
             preprocessing_obj = self.get_data_transformer_object()
 
-            target_column_name = "math_score"
-            numerical_columns = ["writing_score","reading_score"]
+           
+            input_feature_train_df = train_df.drop(["math_score"],axis=1)
+            target_feature_train_df = train_df["math_score"]
 
-            input_feature_train_df = train_df.drop(columns = [target_column_name],axis=1)
-            target_feature_train_df = train_df[target_column_name]
-
-            input_feature_test_df = test_df.drop(columns = [target_column_name],axis=1)
-            target_feature_test_df = test_df[target_column_name]
+            input_feature_test_df = test_df.drop(["math_score"],axis=1)
+            target_feature_test_df = test_df["math_score"]
 
             logging.info("applying preprocessing object on the training dataframe and testing dataframe")
 
@@ -93,18 +94,20 @@ class DataTransformation:
             input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)            
 
             train_arr = np.c_[
-                input_feature_train_arr,np.array(input_feature_train_df)
+                input_feature_train_arr,np.array(target_feature_train_df).reshape(-1, 1)
             ]
 
             test_arr = np.c_[
-                input_feature_test_arr,np.array(input_feature_test_df)
+                input_feature_test_arr,np.array(target_feature_test_df).reshape(-1, 1)
             ]
 
+          
             logging.info("Saved preprocessing object.")
             save_object(
                 file_path = self.data_transformation_config.preprocessor_obj_file_path,
                 obj=preprocessing_obj
             )
+        
             return (
                 train_arr,
                 test_arr,

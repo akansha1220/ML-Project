@@ -8,9 +8,11 @@ from sklearn.ensemble import (
     GradientBoostingRegressor,
     RandomForestRegressor,
 )
-from src.logger import logging
-from src.exception import CustomException
 import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from logger import logging
+from exception import CustomException
+
 
 import warnings
 
@@ -21,8 +23,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 from catboost import CatBoostRegressor
 from xgboost import XGBRegressor
-from src.utlis import save_object
-from src.utlis import evaluate_model
+from utlis import save_object
+from utlis import evaluate_model
 
 @dataclass
 class ModelTrainerConfig:
@@ -30,65 +32,73 @@ class ModelTrainerConfig:
 
 class ModelTrainer:
     def __init__(self):
-        self.model_trainer_config - ModelTrainerConfig()
+        self.model_trainer_config = ModelTrainerConfig()
 
-    def initiate_model_trainer(self,train_array,preprocessor_path):
+    def initiate_model_trainer(self,train_array,test_array):
         try:
             logging.info("Split training and test input data")
             X_train,Y_train,X_test,Y_test=(
                 train_array[:,:-1],
                 train_array[:,-1],
-                train_array[:,:-1],
-                train_array[:,-1],
+                test_array[:,:-1],
+                test_array[:,-1]
+
             )
 
+           
             models = {
-                    "Linear Regression": LinearRegression(),
-                    "K-Neighbours Regression" : KNeighborsRegressor(),
+                    
                     "Decision Tree": DecisionTreeRegressor(),
-                    "Random Forest Regressor" : RandomForestRegressor(),
+                    "Random Forest" : RandomForestRegressor(),
                     "XGBRegressor" : XGBRegressor(),
+                    "Gradient Boosting":GradientBoostingRegressor(),
                     "CatBoosting Regressor": CatBoostRegressor(),
-                    "AdaBoost Regressor" : AdaBoostRegressor()
+                    "AdaBoost Regressor" : AdaBoostRegressor(),
+                    "Linear Regression": LinearRegression()
             }
 
 
             params = {
-                "Decision Tree":{
-                    'criterion': ['squared_error','absolute_error','friedman_errors','poisson'],
-                    #'splitter' :['best','random'],
-                    # 'max_features' : ['sqrt','log2]
-                },
-                "Random Forest Regressor":{
-                    'criterion': ['squared_error','absolute_error','friedman_errors','poisson'],
-                     'n_estimators' : [8,16,32,64,128,256]
-                    # 'max_features' : ['sqrt','log2]
-                },
-                "Linear Regression": { },
 
-                "K-Neighbours Regression":{
-                    'n_neighbor': [5,7,9,11],
-                    #'weights' :['uniform','distance'],
-                    # 'algorithm' : ['ball_tree','kd_tree','brute']
+                "Decision Tree": {
+                    'criterion':['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
+                    # 'splitter':['best','random'],
+                    # 'max_features':['sqrt','log2'],
                 },
+                "Random Forest":{
+                    # 'criterion':['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
+                 
+                    # 'max_features':['sqrt','log2',None],
+                    'n_estimators': [8,16,32,64,128,256]
+                },
+                "Gradient Boosting":{
+                    # 'loss':['squared_error', 'huber', 'absolute_error', 'quantile'],
+                    'learning_rate':[.1,.01,.05,.001],
+                    'subsample':[0.6,0.7,0.75,0.8,0.85,0.9],
+                    # 'criterion':['squared_error', 'friedman_mse'],
+                    # 'max_features':['auto','sqrt','log2'],
+                    'n_estimators': [8,16,32,64,128,256]
+                },
+                "Linear Regression":{},
                 "XGBRegressor":{
-                    'n_estimators' : [8,16,32,64,128,256],
-                    'learning_rate' : [.1,.01,.05,.001] 
+                    'learning_rate':[.1,.01,.05,.001],
+                    'n_estimators': [8,16,32,64,128,256]
                 },
-
-                "CatBoosting Regression":{
-                    'iterations' : [30,50,100],
-                    'learning_rate' : [.1,.01,.05,.001],
-                    'depth' : [6,8,10]  
+                "CatBoosting Regressor":{
+                    'depth': [6,8,10],
+                    'learning_rate': [0.01, 0.05, 0.1],
+                    'iterations': [30, 50, 100]
                 },
                 "AdaBoost Regressor":{
-                    'n_estimators' : [8,16,32,64,128,256],
-                    'learning_rate' : [.1,.01,.05,.001] 
-                },
-
-
-            }
+                    'learning_rate':[.1,.01,0.5,.001],
+                    # 'loss':['linear','square','exponential'],
+                    'n_estimators': [8,16,32,64,128,256]
+                }
+                }
+            logging.info("Done with models and their respective params")
             model_report:dict = evaluate_model(X_train=X_train,Y_train=Y_train,X_test=X_test,Y_test=Y_test,models=models,params=params)
+
+            logging.info("Done with evaluate model")
 
             #to get the best model score
 
@@ -97,6 +107,8 @@ class ModelTrainer:
             #to get the model name from dict
 
             best_model_name = list(model_report.keys())[ list(model_report.values()).index(best_model_score)]
+
+            #print(model_report[best_model_name][1])
 
             best_model = models[best_model_name]
 
@@ -109,7 +121,8 @@ class ModelTrainer:
                 obj= best_model
             )
         
-            predicted = best_model.predict(X_test)
+            
+            predicted =  best_model.predict(X_test)
 
             r2_square = r2_score(Y_test,predicted)
             return r2_square
