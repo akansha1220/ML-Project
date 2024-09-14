@@ -6,17 +6,18 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from src.pipline.predict_pipline import CustomData,PredictPipeline
 
-application=Flask(__name__)
+app=Flask(__name__)
 
-app=application
+
 
 ## Route for a home page
 
-@app.route('/')
-def index():
-    return render_template('index.html') 
+#@app.route('/')
+#def index():
+#   return render_template('index.html') 
+predict_pipeline=PredictPipeline()  #loading model
 
-@app.route('/predictdata',methods=['GET','POST'])
+@app.route('/',methods=['GET','POST'])
 def predict_datapoint():
     if request.method=='GET':
         return render_template('home.html')
@@ -33,8 +34,6 @@ def predict_datapoint():
         )
         pred_df=data.get_data_as_dataframe()
         print(pred_df)
-        print("__Before Prediction__")
-        predict_pipeline=PredictPipeline()
         print("__Mid Prediction__")
         results=predict_pipeline.predict(pred_df)
         print("__after Prediction__")
