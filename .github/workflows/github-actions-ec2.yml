@@ -35,4 +35,3 @@ jobs:
             sudo systemctl start httpd
             sudo systemctl enable httpd
             cd /home
-            sudo mv * /var/www/html
