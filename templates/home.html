@@ -64,7 +64,7 @@
        <h1>Students Marks prediction</h1>
     
         <!-- Main Input For Receiving Query to our ML -->
-       <form action="{{ url_for('predict_datapoint')}}" method="post">
+       <form action="{{ request.url_root }}predict" method="post">
             <select name="gender" placeholder="Enter you Gender" required>
                 <option class="placeholder" selected disabled value="">Select your Gender</option>
                 <option value="male">

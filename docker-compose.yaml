@@ -6,3 +6,5 @@ services:
     container_name: "my_container"
     ports:
       - 5000:5000
+
+#TODO: use .env file deploying using docker and mount desired directory to the container for making an app extensible
