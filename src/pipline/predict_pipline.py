@@ -2,7 +2,8 @@ import sys
 import pandas as pd
 from src.exception import CustomException
 from src.utlis import load_object
-import os
+from src.logger import logging
+from src.exception import CustomException
 
 class PredictPipeline:
     def __init__(self) -> None:
@@ -11,19 +12,18 @@ class PredictPipeline:
 #like model prediction
     def predict(self,features):
         try:
-
-           #model_path=os.path.join("artifacts","model.pkl")
-            #preprocessor_path=os.path.join('artifacts','processor.pkl')
-            print("Before Loading")
+            logging.info("loading the Model pickel file")
             model=load_object(file_path='artifacts\model.pkl')
             preprocessor=load_object(file_path='artifacts\processor.pkl')
-            print("After Loading")
+            logging.info("Load the model file successfully")
             data_scaled=preprocessor.transform(features)
+            logging.info("transformation of input done sucessful")
             preds=model.predict(data_scaled)
             return preds
         
 
         except Exception as E:
+            logging.critical(f"Prediction failed at {E}")
             raise CustomException(E,sys)
 
 
@@ -57,8 +57,9 @@ class CustomData:
                "reading_score":[self.reading_score],
                "writing_score":[self.writing_score]
             }
-
+            logging.info("Changing the input data into datframe is done successfully")
             return pd.DataFrame(custom_data_input_dict)
         
         except Exception as e:
+            logging.critical("Error occur while predicting the data")
             raise CustomException(e,sys)

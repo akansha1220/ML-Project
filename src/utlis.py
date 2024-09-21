@@ -66,6 +66,7 @@ def evaluate_model(X_train,Y_train,X_test,Y_test,models,params):
 def load_object(file_path):
         try:
             with open(file_path,"rb") as file_obj:
+                 logging.info("loading is successfully in utlis file")
                  return joblib.load(file_obj)
         except Exception as E:
             raise CustomException(E,sys)

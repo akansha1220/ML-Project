@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from datetime import datetime
 
 LOG_FILE=f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"            #creating a file name with current date and .log extention'''
@@ -15,4 +16,5 @@ logging.basicConfig(
 
 
 if __name__=="__main__":
+    logger = logging.getLogger()
     logging.info("Logging has started")

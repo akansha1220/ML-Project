@@ -1,8 +1,10 @@
 import sys
 import logging
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.logger import logging
+
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 def error_message_detail(error,error_detail:sys):
     _,_,exc_tb = error_detail.exc_info()
@@ -11,6 +13,7 @@ def error_message_detail(error,error_detail:sys):
         file_name,exc_tb.tb_lineno,str(error))
     
     return error_message
+
 
 
 class CustomException(Exception):

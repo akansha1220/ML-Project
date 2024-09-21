@@ -2,8 +2,7 @@ version: '3.8'
 
 services:
   student_marks_prediction_service:
-    image: ""
-    container_name: ml-project
+    image: "demo:latest"
+    container_name: "my_container"
     ports:
       - 5000:5000
-    
